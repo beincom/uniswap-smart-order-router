@@ -1,6 +1,6 @@
 {
   "name": "@beincom/smart-order-router",
-  "version": "3.48.0-rc.6",
+  "version": "3.48.0-rc.7",
   "description": "Uniswap Smart Order Router",
   "main": "build/main/index.js",
   "typings": "build/main/index.d.ts",
