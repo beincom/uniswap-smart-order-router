@@ -74,13 +74,13 @@ export class V2HeuristicGasModelFactory extends IV2GasModelFactory {
     // Only fetch the native gasToken pool if specified by the config AND the gas token is not the native currency.
     const nativeAndSpecifiedGasTokenPoolPromise =
       providerConfig?.gasToken &&
-      !providerConfig?.gasToken.equals(WRAPPED_NATIVE_CURRENCY[chainId]!)
+        !providerConfig?.gasToken.equals(WRAPPED_NATIVE_CURRENCY[chainId]!)
         ? this.getEthPool(
-            chainId,
-            providerConfig.gasToken,
-            poolProvider,
-            providerConfig
-          )
+          chainId,
+          providerConfig.gasToken,
+          poolProvider,
+          providerConfig
+        )
         : Promise.resolve(null);
 
     const [usdPool, nativeAndSpecifiedGasTokenPool] = await Promise.all([
@@ -245,7 +245,7 @@ export class V2HeuristicGasModelFactory extends IV2GasModelFactory {
           reserve0: pool?.reserve0.toExact(),
           reserve1: pool?.reserve1.toExact(),
         },
-        `Could not find a valid WETH pool with ${token.symbol} for computing gas costs.`
+        `(TED)(v2-heuristic-gas-model) Could not find a valid WETH pool with ${token.symbol} for computing gas costs.`
       );
 
       return null;
@@ -288,7 +288,7 @@ export class V2HeuristicGasModelFactory extends IV2GasModelFactory {
         { pools },
         `Could not find a USD/WETH pool for computing gas costs.`
       );
-      throw new Error(`Can't find USD/WETH pool for computing gas costs.`);
+      throw new Error(`(TED) V2 Can't find USD/WETH pool for computing gas costs.`);
     }
 
     const maxPool = _.maxBy(pools, (pool) => {

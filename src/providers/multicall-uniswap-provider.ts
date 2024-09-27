@@ -40,7 +40,10 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
   ) {
     super();
     const multicallAddress = UNISWAP_MULTICALL_ADDRESSES[this.chainId];
-
+    log.error({
+      multicallAddress,
+      chainId,
+    }, '(TED) UniswapMulticallProvider');
     if (!multicallAddress) {
       throw new Error(
         `No address for Uniswap Multicall Contract on chain id: ${chainId}`
@@ -123,6 +126,13 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
+    log.error({
+      results,
+      functionName,
+      addresses,
+      blockNumber,
+    }, "(TED) callSameFunctionOnMultipleContracts success");
+
     log.debug(
       { results },
       `Results for multicall on ${functionName} across ${addresses.length} addresses as of block ${blockNumber}`
@@ -176,23 +186,47 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       `About to multicall for ${functionName} at address ${address} with ${functionParams.length} different sets of params`
     );
 
-    const { blockNumber, returnData: aggregateResults } =
-      await this.multicallContract.callStatic.multicall(calls, {
+    let aggregateResults: {
+      success: boolean;
+      gasUsed: BigNumber;
+      returnData: string;
+    }[] = [];
+    let blockNumber = BigNumber.from(0);
+
+    try {
+      if (functionName === 'quoteExactInput') {
+        aggregateResults = aggregateResults.concat([{
+          success: true,
+          returnData: "0x0000000000000000000000000000000000000000000000001d738ef146b1bea0000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000e00000000000000000000000000000000000000000000000000000000000028a79000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000001c49a6e055de37808b897f84c8f00000000000000000000000000000000000000024c28832b73b2647f9046544b000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          gasUsed: BigNumber.from(202359)
+        }]);
+        blockNumber = BigNumber.from(6751687);
+      }
+      log.error({
+        calls, functionName, address, functionParams, blockNumberOverride,
+        multicall: this.multicallContract.address,
+      }, '(TED) callSameFunctionOnContractWithMultipleParams before multicall');
+      // NOTE(Ted): not work with await keyword, hmmmmmm
+      const result = await this.multicallContract.callStatic.multicall(calls, {
         blockTag: blockNumberOverride,
       });
+      log.error({ result, blockNumber, aggregateResults }, "(TED) callSameFunctionOnContractWithMultipleParams after multicall 1");
+      blockNumber = result.blockNumber;
+      aggregateResults = result.returnData;
 
+      log.error({ aggregateResults, returnData: result.returnData }, "(TED) callSameFunctionOnContractWithMultipleParams after multicall 2");
+
+
+    } catch (error) {
+      log.error({ error }, "(TED) callSameFunctionOnContractWithMultipleParams error");
+    }
     const results: Result<TReturn>[] = [];
-
     const gasUsedForSuccess: number[] = [];
     for (let i = 0; i < aggregateResults.length; i++) {
       const { success, returnData, gasUsed } = aggregateResults[i]!;
 
       // Return data "0x" is sometimes returned for invalid pools.
       if (!success || returnData.length <= 2) {
-        log.debug(
-          { result: aggregateResults[i] },
-          `Invalid result calling ${functionName} address ${address} with params ${functionParams[i]}`
-        );
         results.push({
           success: false,
           returnData,
@@ -212,9 +246,9 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
-    log.debug(
-      { results, functionName, address },
-      `Results for multicall for ${functionName} at address ${address} with ${functionParams.length} different sets of params. Results as of block ${blockNumber}`
+    log.error(
+      { results, functionName, functionParams, address, gasUsedForSuccess },
+      `(TED) callSameFunctionOnContractWithMultipleParams success`
     );
     return {
       blockNumber,
@@ -281,8 +315,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       if (!success || returnData.length <= 2) {
         log.debug(
           { result: aggregateResults[i] },
-          `Invalid result calling ${functionNames[i]} with ${
-            functionParams ? functionParams[i] : '0'
+          `Invalid result calling ${functionNames[i]} with ${functionParams ? functionParams[i] : '0'
           } params`
         );
         results.push({
@@ -302,13 +335,16 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
         ) as unknown as TReturn,
       });
     }
+    log.error({
+      results,
+      calls, functionNames, address, functionParams, blockNumberOverride,
+      multicall: this.multicallContract.address,
+    }, '(TED) callMultipleFunctionsOnSameContract success');
 
     log.debug(
       { results, functionNames, address },
-      `Results for multicall for ${
-        functionNames.length
-      } functions at address ${address} with ${
-        functionParams ? functionParams.length : ' 0'
+      `Results for multicall for ${functionNames.length
+      } functions at address ${address} with ${functionParams ? functionParams.length : ' 0'
       } different sets of params. Results as of block ${blockNumber}`
     );
     return {

@@ -30,8 +30,8 @@ export const V3_CORE_FACTORY_ADDRESSES: AddressMap = {
     CHAIN_TO_ADDRESSES_MAP[ChainId.SEPOLIA].v3CoreFactoryAddress,
   [ChainId.ARBITRUM_GOERLI]:
     CHAIN_TO_ADDRESSES_MAP[ChainId.ARBITRUM_GOERLI].v3CoreFactoryAddress,
-  [ChainId.ARBITRUM_SEPOLIA]:
-    CHAIN_TO_ADDRESSES_MAP[ChainId.ARBITRUM_SEPOLIA].v3CoreFactoryAddress,
+  // NOTE(Ted): Update this address when the Arbitrum Sepolia factory is deployed
+  [ChainId.ARBITRUM_SEPOLIA]: "0x5f3c78481FF5711812bCB13e56262711A2afB491",
   [ChainId.BNB]: CHAIN_TO_ADDRESSES_MAP[ChainId.BNB].v3CoreFactoryAddress,
   [ChainId.AVALANCHE]:
     CHAIN_TO_ADDRESSES_MAP[ChainId.AVALANCHE].v3CoreFactoryAddress,
@@ -56,8 +56,8 @@ export const QUOTER_V2_ADDRESSES: AddressMap = {
   [ChainId.SEPOLIA]: CHAIN_TO_ADDRESSES_MAP[ChainId.SEPOLIA].quoterAddress,
   [ChainId.ARBITRUM_GOERLI]:
     CHAIN_TO_ADDRESSES_MAP[ChainId.ARBITRUM_GOERLI].quoterAddress,
-  [ChainId.ARBITRUM_SEPOLIA]:
-    CHAIN_TO_ADDRESSES_MAP[ChainId.ARBITRUM_SEPOLIA].quoterAddress,
+  // NOTE(Ted): Update this address when the Arbitrum Sepolia quoter is deployed
+  [ChainId.ARBITRUM_SEPOLIA]: "0x6FBf8D06c25BFF38688e10E4056E40Aa1319459A",
   [ChainId.BNB]: CHAIN_TO_ADDRESSES_MAP[ChainId.BNB].quoterAddress,
   [ChainId.AVALANCHE]: CHAIN_TO_ADDRESSES_MAP[ChainId.AVALANCHE].quoterAddress,
   [ChainId.BASE_GOERLI]:
@@ -75,7 +75,8 @@ export const NEW_QUOTER_V2_ADDRESSES: AddressMap = {
   [ChainId.CELO_ALFAJORES]: '0x5e55C9e631FAE526cd4B0526C4818D6e0a9eF0e3',
   [ChainId.OPTIMISM_SEPOLIA]: '0x5e55C9e631FAE526cd4B0526C4818D6e0a9eF0e3',
   [ChainId.SEPOLIA]: '0xf0c802dcb0cf1c4f7b953756b49d940eed190221',
-  [ChainId.ARBITRUM_SEPOLIA]: '0x5e55C9e631FAE526cd4B0526C4818D6e0a9eF0e3',
+  // NOTE(TEd): Update this address when the Arbitrum Sepolia quoter is deployed
+  [ChainId.ARBITRUM_SEPOLIA]: '0x6FBf8D06c25BFF38688e10E4056E40Aa1319459A',
   [ChainId.BNB]: '0x5e55C9e631FAE526cd4B0526C4818D6e0a9eF0e3',
   [ChainId.AVALANCHE]: '0xf0c802dcb0cf1c4f7b953756b49d940eed190221',
   [ChainId.POLYGON_MUMBAI]: '0x60e06b92bC94a665036C26feC5FF2A92E2d04c5f',
@@ -124,6 +125,10 @@ export const UNISWAP_MULTICALL_ADDRESSES: AddressMap = {
 };
 
 export const SWAP_ROUTER_02_ADDRESSES = (chainId: number): string => {
+  // NOTE(Ted): Update this address when the Arbitrum Sepolia router is deployed
+  if (chainId === ChainId.ARBITRUM_SEPOLIA) {
+    return "0xC9dd0A9a63f774037e5F040242eE4a4C17A48D48";
+  }
   return (
     SWAP_ROUTER_02_ADDRESSES_HELPER(chainId) ??
     '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'

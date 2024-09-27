@@ -325,12 +325,13 @@ export const USDC_ARBITRUM_GOERLI = new Token(
 );
 
 // Bridged version of official Sepolia USDC
+// NOTE(TED): Sepolia USDC is not bridged to Arbitrum
 export const USDC_ARBITRUM_SEPOLIA = new Token(
   ChainId.ARBITRUM_SEPOLIA,
-  '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
-  6,
-  'USDC',
-  'USD//C'
+  '0x5E90f755dBb75566E9c636E9a502C12fe4742F3a',
+  18,
+  'USDT',
+  'Test USDT'
 );
 
 //polygon tokens
@@ -700,7 +701,7 @@ export class TokenProvider implements ITokenProvider {
   constructor(
     private chainId: ChainId,
     protected multicall2Provider: IMulticallProvider
-  ) {}
+  ) { }
 
   private async getTokenSymbol(
     addresses: string[],
@@ -845,10 +846,8 @@ export class TokenProvider implements ITokenProvider {
       }
 
       log.info(
-        `Got token symbol and decimals for ${
-          Object.values(addressToToken).length
-        } out of ${addresses.length} tokens on-chain ${
-          providerConfig ? `as of: ${providerConfig?.blockNumber}` : ''
+        `Got token symbol and decimals for ${Object.values(addressToToken).length
+        } out of ${addresses.length} tokens on-chain ${providerConfig ? `as of: ${providerConfig?.blockNumber}` : ''
         }`
       );
     }

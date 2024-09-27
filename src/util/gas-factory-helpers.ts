@@ -57,7 +57,7 @@ export async function getV2NativePool(
         reserve0: pool?.reserve0.toExact(),
         reserve1: pool?.reserve1.toExact(),
       },
-      `Could not find a valid WETH V2 pool with ${token.symbol} for computing gas costs.`
+      `(TED)(gas-factory-helper) Could not find a valid WETH V2 pool with ${token.symbol} for computing gas costs.`
     );
 
     return null;
@@ -167,7 +167,7 @@ export async function getHighestLiquidityV3USDPool(
     .value();
 
   if (pools.length == 0) {
-    const message = `Could not find a USD/${wrappedCurrency.symbol} pool for computing gas costs.`;
+    const message = `(TED) V3 Could not find a USD/${wrappedCurrency.symbol} pool for computing gas costs.`;
     log.error({ pools }, message);
     throw new Error(message);
   }
@@ -514,10 +514,10 @@ export function initSwapRouteFromExisting(
 
   const quoteGasAndPortionAdjusted = swapRoute.portionAmount
     ? portionProvider.getQuoteGasAndPortionAdjusted(
-        swapRoute.trade.tradeType,
-        quoteGasAdjusted,
-        swapRoute.portionAmount
-      )
+      swapRoute.trade.tradeType,
+      quoteGasAdjusted,
+      swapRoute.portionAmount
+    )
     : undefined;
   const routesWithValidQuotePortionAdjusted =
     portionProvider.getRouteWithQuotePortionAdjusted(
@@ -541,10 +541,10 @@ export function initSwapRouteFromExisting(
     blockNumber: BigNumber.from(swapRoute.blockNumber),
     methodParameters: swapRoute.methodParameters
       ? ({
-          calldata: swapRoute.methodParameters.calldata,
-          value: swapRoute.methodParameters.value,
-          to: swapRoute.methodParameters.to,
-        } as MethodParameters)
+        calldata: swapRoute.methodParameters.calldata,
+        value: swapRoute.methodParameters.value,
+        to: swapRoute.methodParameters.to,
+      } as MethodParameters)
       : undefined,
     simulationStatus: swapRoute.simulationStatus,
     portionAmount: swapRoute.portionAmount,
