@@ -1605,9 +1605,6 @@ export class AlphaRouter
       estimatedGasUsedUSD,
       estimatedGasUsedGasToken,
     } = swapRouteRaw;
-    log.error({
-      swapRouteRaw
-    }, "(TED) SwapRouteRaw data");
 
     if (
       this.routeCachingProvider &&

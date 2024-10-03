@@ -200,7 +200,10 @@ const baseTokensByChain: { [chainId in ChainId]?: Token[] } = {
     USDT_ARBITRUM,
   ],
   [ChainId.ARBITRUM_GOERLI]: [USDC_ARBITRUM_GOERLI],
-  [ChainId.ARBITRUM_SEPOLIA]: [USDC_ARBITRUM_SEPOLIA],
+  [ChainId.ARBITRUM_SEPOLIA]: [
+    WRAPPED_NATIVE_CURRENCY[ChainId.ARBITRUM_SEPOLIA]!,
+    USDC_ARBITRUM_SEPOLIA
+  ],
   [ChainId.POLYGON]: [USDC_POLYGON, WMATIC_POLYGON],
   [ChainId.POLYGON_MUMBAI]: [DAI_POLYGON_MUMBAI, WMATIC_POLYGON_MUMBAI],
   [ChainId.CELO]: [CUSD_CELO, CEUR_CELO, CELO],
@@ -843,9 +846,6 @@ export async function getV3CandidatePools({
   blockedTokenListProvider,
   chainId,
 }: V3GetCandidatePoolsParams): Promise<V3CandidatePools> {
-  log.error({
-    tokenIn, tokenOut, subgraphProvider
-  }, "(TED) getV3CandidatePools tokenIn, tokenOut")
   const {
     blockNumber,
     v3PoolSelection: {
@@ -859,6 +859,7 @@ export async function getV3CandidatePools({
       topNWithBaseToken,
     },
   } = routingConfig;
+  log.error({ v3PoolSelection: routingConfig.v3PoolSelection }, '(TED) V3 Pool Selection Config');
   const tokenInAddress = tokenIn.address.toLowerCase();
   const tokenOutAddress = tokenOut.address.toLowerCase();
 
