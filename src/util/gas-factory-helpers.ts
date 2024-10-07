@@ -36,34 +36,40 @@ import { opStackChains } from './l2FeeChains';
 import { buildSwapMethodParameters, buildTrade } from './methodParameters';
 
 export async function getV2NativePool(
-  token: Token,
-  poolProvider: IV2PoolProvider,
-  providerConfig?: GasModelProviderConfig
+  // token: Token,
+  // poolProvider: IV2PoolProvider,
+  // providerConfig?: GasModelProviderConfig,
+  // NOTE(Ted): Currently, disable fetch pool v2
+  _: Token,
+  __: IV2PoolProvider,
+  ___?: GasModelProviderConfig
 ): Promise<Pair | null> {
-  const chainId = token.chainId as ChainId;
-  const weth = WRAPPED_NATIVE_CURRENCY[chainId]!;
+  // NOTE(Ted): Currently, disable fetch pool v2
+  return null;
+  // const chainId = token.chainId as ChainId;
+  // const weth = WRAPPED_NATIVE_CURRENCY[chainId]!;
 
-  const poolAccessor = await poolProvider.getPools(
-    [[weth, token]],
-    providerConfig
-  );
-  const pool = poolAccessor.getPool(weth, token);
+  // const poolAccessor = await poolProvider.getPools(
+  //   [[weth, token]],
+  //   providerConfig
+  // );
+  // const pool = poolAccessor.getPool(weth, token);
 
-  if (!pool || pool.reserve0.equalTo(0) || pool.reserve1.equalTo(0)) {
-    log.error(
-      {
-        weth,
-        token,
-        reserve0: pool?.reserve0.toExact(),
-        reserve1: pool?.reserve1.toExact(),
-      },
-      `(TED)(gas-factory-helper) Could not find a valid WETH V2 pool with ${token.symbol} for computing gas costs.`
-    );
+  // if (!pool || pool.reserve0.equalTo(0) || pool.reserve1.equalTo(0)) {
+  //   log.error(
+  //     {
+  //       weth,
+  //       token,
+  //       reserve0: pool?.reserve0.toExact(),
+  //       reserve1: pool?.reserve1.toExact(),
+  //     },
+  //     `(TED)(gas-factory-helper) Could not find a valid WETH V2 pool with ${token.symbol} for computing gas costs.`
+  //   );
 
-    return null;
-  }
+  //   return null;
+  // }
 
-  return pool;
+  // return pool;
 }
 
 export async function getHighestLiquidityV3NativePool(

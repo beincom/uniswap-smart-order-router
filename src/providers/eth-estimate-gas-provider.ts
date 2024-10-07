@@ -52,6 +52,28 @@ export class EthEstimateGasSimulator extends Simulator {
     route: SwapRoute,
     providerConfig?: ProviderConfig
   ): Promise<SwapRoute> {
+    // NOTE(Ted): This is a temporary fix to avoid simulating gas for default routes
+    const isDefault = true;
+    if (isDefault) {
+      return {
+        ...initSwapRouteFromExisting(
+          route,
+          this.v2PoolProvider,
+          this.v3PoolProvider,
+          this.v4PoolProvider,
+          this.portionProvider,
+          route.quote,
+          BigNumber.from(0),
+          route.estimatedGasUsedQuoteToken,
+          route.estimatedGasUsedUSD,
+          swapOptions,
+          route.estimatedGasUsedGasToken,
+          providerConfig
+        ),
+        simulationStatus: SimulationStatus.Failed,
+      };
+
+    }
     const currencyIn = route.trade.inputAmount.currency;
     let estimatedGasUsed: BigNumber;
     if (swapOptions.type == SwapType.UNIVERSAL_ROUTER) {
