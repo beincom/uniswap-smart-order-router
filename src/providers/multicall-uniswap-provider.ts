@@ -40,10 +40,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
   ) {
     super();
     const multicallAddress = UNISWAP_MULTICALL_ADDRESSES[this.chainId];
-    log.error({
-      multicallAddress,
-      chainId,
-    }, '(TED) UniswapMulticallProvider');
+
     if (!multicallAddress) {
       throw new Error(
         `No address for Uniswap Multicall Contract on chain id: ${chainId}`
@@ -126,12 +123,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
-    log.error({
-      results,
-      functionName,
-      addresses,
-      blockNumber,
-    }, "(TED) callSameFunctionOnMultipleContracts success");
+    log.error("(TED) callSameFunctionOnMultipleContracts success");
 
     log.debug(
       { results },
@@ -202,20 +194,14 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
         }]);
         blockNumber = BigNumber.from(6751687);
       }
-      log.error({
-        calls, functionName, address, functionParams, blockNumberOverride,
-        multicall: this.multicallContract.address,
-      }, '(TED) callSameFunctionOnContractWithMultipleParams before multicall');
+
       // NOTE(Ted): not work with await keyword, hmmmmmm
       const result = await this.multicallContract.callStatic.multicall(calls, {
         blockTag: blockNumberOverride,
       });
-      log.error({ result, blockNumber, aggregateResults }, "(TED) callSameFunctionOnContractWithMultipleParams after multicall 1");
+
       blockNumber = result.blockNumber;
       aggregateResults = result.returnData;
-
-      log.error({ aggregateResults, returnData: result.returnData }, "(TED) callSameFunctionOnContractWithMultipleParams after multicall 2");
-
 
     } catch (error) {
       log.error({ error }, "(TED) callSameFunctionOnContractWithMultipleParams error");
@@ -246,10 +232,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
-    log.error(
-      { results, functionName, functionParams, address, gasUsedForSuccess },
-      `(TED) callSameFunctionOnContractWithMultipleParams success`
-    );
+    log.error("(TED) callSameFunctionOnContractWithMultipleParams success");
     return {
       blockNumber,
       results,
@@ -335,11 +318,7 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
         ) as unknown as TReturn,
       });
     }
-    log.error({
-      results,
-      calls, functionNames, address, functionParams, blockNumberOverride,
-      multicall: this.multicallContract.address,
-    }, '(TED) callMultipleFunctionsOnSameContract success');
+    log.error("(TED) callMultipleFunctionsOnSameContract success");
 
     log.debug(
       { results, functionNames, address },

@@ -1438,7 +1438,7 @@ export class AlphaRouter
         )}`
       );
     }
-
+    log.error({ cachedRoutes: cachedRoutes?.routes.length, useCachedRoutes: routingConfig.useCachedRoutes, cacheMode }, '(TED) cachedRoutes');
     let swapRouteFromCachePromise: Promise<BestSwapRoute | null> =
       Promise.resolve(null);
     if (cachedRoutes) {
@@ -2003,6 +2003,7 @@ export class AlphaRouter
       }
     }
 
+    log.error({ quotePromises: quotePromises.length }, '(TED) quotePromises');
     const getQuotesResults = await Promise.all(quotePromises);
     const allRoutesWithValidQuotes = _.flatMap(
       getQuotesResults,

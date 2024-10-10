@@ -42,6 +42,29 @@ export abstract class TickBasedHeuristicGasModelFactory<
   }: BuildOnChainGasModelFactoryType): Promise<
     IGasModel<TRouteWithValidQuote>
   > {
+    const isDisable = true;
+    if (isDisable) {
+      return {
+        estimateGasCost: () => {
+          return {
+            gasEstimate: BigNumber.from(0),
+            gasCostInToken: CurrencyAmount.fromRawAmount(quoteToken, 0),
+            gasCostInUSD: CurrencyAmount.fromRawAmount(quoteToken, 0),
+          }
+        },
+        calculateL1GasFees: async (
+          _: TRouteWithValidQuote[]
+        ) => {
+          return {
+            gasUsedL1: BigNumber.from(0),
+            gasUsedL1OnL2: BigNumber.from(0),
+            gasCostL1USD: CurrencyAmount.fromRawAmount(quoteToken, 0),
+            gasCostL1QuoteToken: CurrencyAmount.fromRawAmount(quoteToken, 0),
+          }
+        }
+      }
+    }
+
     const l2GasData = l2GasDataProvider
       ? await l2GasDataProvider.getGasData(providerConfig)
       : undefined;
