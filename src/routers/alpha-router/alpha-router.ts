@@ -1306,10 +1306,25 @@ export class AlphaRouter
       log.warn(`Finalized routing config is ${JSON.stringify(routingConfig)}`);
     }
 
-    const gasPriceWei = await this.getGasPriceWei(
-      await blockNumber,
-      await partialRoutingConfig.blockNumber
-    );
+    const gasPriceStartTime = Date.now();
+    let gasPriceWei: BigNumber;
+    // NOTE(Ted): Disable get gas price for now
+    const isDefaultGasPrice = true;
+    if (isDefaultGasPrice) {
+      gasPriceWei = BigNumber.from(1);
+    } else {
+      gasPriceWei = await this.getGasPriceWei(
+        await blockNumber,
+        await partialRoutingConfig.blockNumber
+      );
+    }
+    const gasPriceEndTime = Date.now();
+    log.error({
+      start: gasPriceStartTime,
+      end: gasPriceEndTime,
+      taken: gasPriceEndTime - gasPriceStartTime,
+      gasPriceWei: gasPriceWei.toString(),
+    }, "Performance: Gas Price Fetch Time");
 
     const quoteToken = quoteCurrency.wrapped;
     // const gasTokenAccessor = await this.tokenProvider.getTokens([routingConfig.gasToken!]);
@@ -1332,6 +1347,7 @@ export class AlphaRouter
       feeTakenOnTransfer,
     };
 
+    const getGasModelStartTime = Date.now();
     const {
       v2GasModel: v2GasModel,
       v3GasModel: v3GasModel,
@@ -1341,14 +1357,25 @@ export class AlphaRouter
       gasPriceWei,
       amount.currency.wrapped,
       quoteToken,
-      providerConfig
+      providerConfig,
+      true, // Return mock gas models
     );
+    const getGasModelStartEndTime = Date.now();
+    log.error({
+      start: getGasModelStartTime,
+      end: getGasModelStartEndTime,
+      taken: getGasModelStartEndTime - getGasModelStartTime,
+      gasPriceWei: gasPriceWei.toString(),
+    }, "Performance: Gas Model Fetch Time");
 
     // Create a Set to sanitize the protocols input, a Set of undefined becomes an empty set,
     // Then create an Array from the values of that Set.
     const protocols: Protocol[] = Array.from(
       new Set(routingConfig.protocols).values()
     );
+    log.error({
+      protocols: routingConfig.protocols,
+    }, "Debug: protocols");
 
     const cacheMode =
       routingConfig.overwriteCacheMode ??
@@ -1438,7 +1465,6 @@ export class AlphaRouter
         )}`
       );
     }
-    log.error({ cachedRoutes: cachedRoutes?.routes.length, useCachedRoutes: routingConfig.useCachedRoutes, cacheMode }, '(TED) cachedRoutes');
     let swapRouteFromCachePromise: Promise<BestSwapRoute | null> =
       Promise.resolve(null);
     if (cachedRoutes) {
@@ -1482,10 +1508,17 @@ export class AlphaRouter
       );
     }
 
+    const swapRouteStartTime = Date.now();
     const [swapRouteFromCache, swapRouteFromChain] = await Promise.all([
       swapRouteFromCachePromise,
       swapRouteFromChainPromise,
     ]);
+    const swapRouteEndTime = Date.now();
+    log.error({
+      start: swapRouteStartTime,
+      end: swapRouteEndTime,
+      taken: swapRouteEndTime - swapRouteStartTime,
+    }, "Performance: Swap Route Fetch Time");
 
     let swapRouteRaw: BestSwapRoute | null;
     let hitsCachedRoute = false;
@@ -1501,6 +1534,9 @@ export class AlphaRouter
       );
       swapRouteRaw = swapRouteFromChain;
     }
+    log.error({
+      swapRouteRaw: swapRouteRaw?.quote,
+    }, "Debug: swapRouteRaw");
 
     if (
       cacheMode === CacheMode.Tapcompare &&
@@ -1592,6 +1628,10 @@ export class AlphaRouter
       }
     }
 
+    log.error({
+      swapRouteRaw: swapRouteRaw?.quote,
+    }, "Debug: swapRouteRaw 2");
+
     if (!swapRouteRaw) {
       return null;
     }
@@ -1664,13 +1704,20 @@ export class AlphaRouter
         );
       }
     }
-
+    log.error({
+      swapRouteRaw: swapRouteRaw?.quote,
+    }, "Debug: swapRouteRaw 3");
     metric.putMetric(
       `QuoteFoundForChain${this.chainId}`,
       1,
       MetricLoggerUnit.Count
     );
-
+    log.error({
+      currencyIn: currencyIn.name,
+      currencyOut: currencyOut.name,
+      tradeType,
+      swapRouteRaw: swapRouteRaw?.quote?.toString() || "null",
+    }, "Debug: swapRouteRaw 4.5");
     // Build Trade object that represents the optimal swap.
     const trade = buildTrade<typeof tradeType>(
       currencyIn,
@@ -1679,16 +1726,27 @@ export class AlphaRouter
       routeAmounts
     );
 
+    log.error({
+      swapRouteRaw: swapRouteRaw?.quote,
+    }, "Debug: swapRouteRaw 4");
+
     let methodParameters: MethodParameters | undefined;
 
     // If user provided recipient, deadline etc. we also generate the calldata required to execute
     // the swap and return it too.
     if (swapConfig) {
+      const methodStartTime = Date.now();
       methodParameters = buildSwapMethodParameters(
         trade,
         swapConfig,
         this.chainId
       );
+      const methodEndTime = Date.now();
+      log.error({
+        start: methodStartTime,
+        end: methodEndTime,
+        taken: methodEndTime - methodStartTime,
+      }, "Performance: buildSwapMethodParameters");
     }
 
     const tokenOutAmount =
@@ -2436,12 +2494,51 @@ export class AlphaRouter
     return gasPriceWei;
   }
 
+
+  private mockGasModels(
+    _: BigNumber,
+    __: Token,
+    quoteToken: Token,
+    ___?: GasModelProviderConfig
+  ): GasModelType {
+    const mockGasModel = {
+      estimateGasCost: () => {
+        return {
+          gasEstimate: BigNumber.from(0),
+          gasCostInToken: CurrencyAmount.fromRawAmount(quoteToken, 0),
+          gasCostInUSD: CurrencyAmount.fromRawAmount(quoteToken, 0),
+        }
+      },
+      calculateL1GasFees: async (
+        _: any[]
+      ) => {
+        return {
+          gasUsedL1: BigNumber.from(0),
+          gasUsedL1OnL2: BigNumber.from(0),
+          gasCostL1USD: CurrencyAmount.fromRawAmount(quoteToken, 0),
+          gasCostL1QuoteToken: CurrencyAmount.fromRawAmount(quoteToken, 0),
+        }
+      }
+
+    }
+    return {
+      v3GasModel: mockGasModel,
+      v2GasModel: mockGasModel,
+      v4GasModel: mockGasModel,
+      mixedRouteGasModel: mockGasModel,
+    }
+  }
+
   private async getGasModels(
     gasPriceWei: BigNumber,
     amountToken: Token,
     quoteToken: Token,
-    providerConfig?: GasModelProviderConfig
+    providerConfig?: GasModelProviderConfig,
+    isMocked: boolean = true
   ): Promise<GasModelType> {
+    if (isMocked) {
+      return this.mockGasModels(gasPriceWei, quoteToken, quoteToken, providerConfig);
+    }
     const beforeGasModel = Date.now();
 
     const usdPoolPromise = getHighestLiquidityV3USDPool(

@@ -325,13 +325,22 @@ export const USDC_ARBITRUM_GOERLI = new Token(
 );
 
 // Bridged version of official Sepolia USDC
-// NOTE(TED): Sepolia USDC is not bridged to Arbitrum
+// NOTE(TED): TUSDC is a test token
 export const USDC_ARBITRUM_SEPOLIA = new Token(
   ChainId.ARBITRUM_SEPOLIA,
   '0x5E90f755dBb75566E9c636E9a502C12fe4742F3a',
   18,
   'USDT',
   'Test USDT'
+);
+
+// NOTE(TED):  
+export const USDT_ARBITRUM_SEPOLIA = new Token(
+  ChainId.ARBITRUM_SEPOLIA,
+  '0x0a8ca9a01e03b8076c3b9bfe304781a0acab9a34',
+  18,
+  'Testnet USDT',
+  'USDT'
 );
 
 //polygon tokens
@@ -921,6 +930,8 @@ export const USDT_ON = (chainId: ChainId): Token => {
       return USDT_OPTIMISM_SEPOLIA;
     case ChainId.ARBITRUM_ONE:
       return USDT_ARBITRUM;
+    case ChainId.ARBITRUM_SEPOLIA:
+      return USDT_ARBITRUM_SEPOLIA;
     case ChainId.BNB:
       return USDT_BNB;
     default:

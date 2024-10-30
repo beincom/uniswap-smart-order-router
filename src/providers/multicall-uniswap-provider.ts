@@ -123,8 +123,6 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
-    log.error("(TED) callSameFunctionOnMultipleContracts success");
-
     log.debug(
       { results },
       `Results for multicall on ${functionName} across ${addresses.length} addresses as of block ${blockNumber}`
@@ -232,7 +230,6 @@ export class UniswapMulticallProvider extends IMulticallProvider<UniswapMultical
       });
     }
 
-    log.error("(TED) callSameFunctionOnContractWithMultipleParams success");
     return {
       blockNumber,
       results,
