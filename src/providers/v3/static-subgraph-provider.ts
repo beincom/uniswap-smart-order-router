@@ -116,7 +116,7 @@ const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
     USDC_ARBITRUM_GOERLI,
   ],
   [ChainId.ARBITRUM_SEPOLIA]: [
-    // WRAPPED_NATIVE_CURRENCY[ChainId.ARBITRUM_SEPOLIA]!,
+    WRAPPED_NATIVE_CURRENCY[ChainId.ARBITRUM_SEPOLIA]!,
   ],
   [ChainId.OPTIMISM_GOERLI]: [
     WRAPPED_NATIVE_CURRENCY[ChainId.OPTIMISM_GOERLI]!,
@@ -192,7 +192,7 @@ export class StaticV3SubgraphProvider implements IV3SubgraphProvider {
   constructor(
     private chainId: ChainId,
     private poolProvider: IV3PoolProvider
-  ) {}
+  ) { }
 
   public async getPools(
     tokenIn?: Token,
@@ -200,6 +200,7 @@ export class StaticV3SubgraphProvider implements IV3SubgraphProvider {
     providerConfig?: ProviderConfig
   ): Promise<V3SubgraphPool[]> {
     log.info('In static subgraph provider for V3');
+    // NOTE(Ted): It's seem to swap multiple pool based on the base tokens
     const bases = BASES_TO_CHECK_TRADES_AGAINST[this.chainId];
 
     const basePairs: [Token, Token][] = _.flatMap(

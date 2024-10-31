@@ -64,6 +64,7 @@ import {
   WMATIC_POLYGON_MUMBAI,
   WSTETH_MAINNET,
   WXDAI_GNOSIS,
+  USDT_ARBITRUM_SEPOLIA,
 } from '../../../providers/token-provider';
 import {
   IV2PoolProvider,
@@ -202,7 +203,8 @@ const baseTokensByChain: { [chainId in ChainId]?: Token[] } = {
   [ChainId.ARBITRUM_GOERLI]: [USDC_ARBITRUM_GOERLI],
   [ChainId.ARBITRUM_SEPOLIA]: [
     WRAPPED_NATIVE_CURRENCY[ChainId.ARBITRUM_SEPOLIA]!,
-    USDC_ARBITRUM_SEPOLIA
+    USDC_ARBITRUM_SEPOLIA,
+    USDT_ARBITRUM_SEPOLIA
   ],
   [ChainId.POLYGON]: [USDC_POLYGON, WMATIC_POLYGON],
   [ChainId.POLYGON_MUMBAI]: [DAI_POLYGON_MUMBAI, WMATIC_POLYGON_MUMBAI],
@@ -859,7 +861,6 @@ export async function getV3CandidatePools({
       topNWithBaseToken,
     },
   } = routingConfig;
-  log.error({ v3PoolSelection: routingConfig.v3PoolSelection }, '(TED) V3 Pool Selection Config');
   const tokenInAddress = tokenIn.address.toLowerCase();
   const tokenOutAddress = tokenOut.address.toLowerCase();
 

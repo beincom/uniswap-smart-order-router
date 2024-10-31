@@ -1301,6 +1301,9 @@ export class AlphaRouter
       partialRoutingConfig,
       { blockNumber }
     );
+    log.error({
+      routingConfig
+    }, "Debug routingConfig");
 
     if (routingConfig.debugRouting) {
       log.warn(`Finalized routing config is ${JSON.stringify(routingConfig)}`);
@@ -1518,6 +1521,8 @@ export class AlphaRouter
       start: swapRouteStartTime,
       end: swapRouteEndTime,
       taken: swapRouteEndTime - swapRouteStartTime,
+      swapRouteFromCache: swapRouteFromCache?.quote.toSignificant(18) || "null",
+      swapRouteFromChain: swapRouteFromChain?.quote.toSignificant(18) || "null"
     }, "Performance: Swap Route Fetch Time");
 
     let swapRouteRaw: BestSwapRoute | null;
@@ -1628,11 +1633,10 @@ export class AlphaRouter
       }
     }
 
-    log.error({
-      swapRouteRaw: swapRouteRaw?.quote,
-    }, "Debug: swapRouteRaw 2");
-
     if (!swapRouteRaw) {
+      log.error({
+        swapRouteRaw: "null"
+      }, "Debug: swapRouteRaw is null");
       return null;
     }
 
@@ -1704,9 +1708,7 @@ export class AlphaRouter
         );
       }
     }
-    log.error({
-      swapRouteRaw: swapRouteRaw?.quote,
-    }, "Debug: swapRouteRaw 3");
+
     metric.putMetric(
       `QuoteFoundForChain${this.chainId}`,
       1,
