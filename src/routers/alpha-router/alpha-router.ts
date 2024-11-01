@@ -2205,6 +2205,7 @@ export class AlphaRouter
       // Fetch all the pools that we will consider routing via. There are thousands
       // of pools, so we filter them to a set of candidate pools that we expect will
       // result in good prices.
+      log.error("Fetching V2 candidate pools");
       v2CandidatePoolsPromise = getV2CandidatePools({
         tokenIn,
         tokenOut,
